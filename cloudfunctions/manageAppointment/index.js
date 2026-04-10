@@ -12,7 +12,7 @@ const _ = db.command;
  * 预约管理云函数
  * 功能：创建预约、更新预约状态、取消预约、检查预约状态
  * 特点：使用事务防止同一时间被多人预约
- * 
+ *
  * 支持的 action:
  * - create: 创建预约
  * - updateStatus: 更新预约状态
@@ -23,7 +23,7 @@ const _ = db.command;
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext();
   const openid = wxContext.OPENID;
-  
+
   const { action, data } = event;
 
   try {
@@ -96,7 +96,7 @@ async function createAppointment(openid, data) {
   const providerResult = await db.collection('users').where({
     _openid: providerId
   }).get();
-  
+
   const receiverResult = await db.collection('users').where({
     _openid: openid
   }).get();
@@ -130,6 +130,16 @@ async function createAppointment(openid, data) {
 
   const result = await db.collection('appointments').add({
     data: appointment
+  });
+
+  // 给技能提供者发送新预约消息通知
+  await sendMessage({
+    userId: providerId,
+    type: 'new_appointment',
+    title: '收到新的预约请求',
+    content: `${receiverInfo.nickName || '用户'} 预约了您的「${skill.title}」技能，请及时确认。`,
+    relatedId: result._id,
+    relatedData: { appointmentId: result._id }
   });
 
   return {
@@ -189,6 +199,37 @@ async function updateAppointmentStatus(openid, data) {
     }
   });
 
+  // 发送状态变更消息通知
+  let notifyUserId, notifyTitle, notifyContent;
+  const otherPartyName = appointment.providerId === openid
+    ? appointment.receiverInfo.nickName
+    : appointment.providerInfo.nickName;
+
+  if (status === 'confirmed') {
+    notifyUserId = appointment.receiverId;
+    notifyTitle = '预约已被接受';
+    notifyContent = `${otherPartyName || '对方'}已接受了您「${appointment.skillTitle}」的预约，准备开始交换吧！`;
+  } else if (status === 'cancelled') {
+    notifyUserId = appointment.providerId === openid ? appointment.receiverId : appointment.providerId;
+    notifyTitle = '预约已取消';
+    notifyContent = `${otherPartyName || '对方'}取消了「${appointment.skillTitle}」的预约。`;
+  } else if (status === 'completed') {
+    notifyUserId = appointment.providerId === openid ? appointment.receiverId : appointment.providerId;
+    notifyTitle = '预约已完成';
+    notifyContent = `「${appointment.skillTitle}」交换已完成，记得去评价哦！`;
+  }
+
+  if (notifyUserId && notifyTitle) {
+    await sendMessage({
+      userId: notifyUserId,
+      type: 'status_changed',
+      title: notifyTitle,
+      content: notifyContent,
+      relatedId: appointmentId,
+      relatedData: { appointmentId }
+    });
+  }
+
   // 如果完成，更新双方的交换次数
   if (status === 'completed') {
     await db.collection('users').where({
@@ -212,6 +253,24 @@ async function updateAppointmentStatus(openid, data) {
     code: 0,
     message: '状态更新成功'
   };
+}
+
+/**
+ * 发送消息
+ * 调用sendMessage云函数创建消息
+ */
+async function sendMessage(messageData) {
+  try {
+    await cloud.callFunction({
+      name: 'sendMessage',
+      data: {
+        action: 'create',
+        data: messageData
+      }
+    });
+  } catch (err) {
+    console.error('发送消息失败', err);
+  }
 }
 
 /**

@@ -124,6 +124,16 @@ async function submitEvaluation(openid, data) {
     data: evaluation
   });
 
+  // 给被评价者发送新评价通知
+  await sendMessage({
+    userId: evaluateeId,
+    type: 'new_evaluation',
+    title: '收到新评价',
+    content: `${evaluatorInfo.nickName || '用户'} 给了你 ${rating} 星评价！`,
+    relatedId: appointmentId,
+    relatedData: { appointmentId, evaluationId: null }
+  });
+
   // 计算并更新被评价者的信誉分
   await updateCreditScore(evaluateeId, rating);
 
@@ -131,6 +141,24 @@ async function submitEvaluation(openid, data) {
     code: 0,
     message: '评价提交成功'
   };
+}
+
+/**
+ * 发送消息
+ * 调用sendMessage云函数创建消息
+ */
+async function sendMessage(messageData) {
+  try {
+    await cloud.callFunction({
+      name: 'sendMessage',
+      data: {
+        action: 'create',
+        data: messageData
+      }
+    });
+  } catch (err) {
+    console.error('发送消息失败', err);
+  }
 }
 
 /**
