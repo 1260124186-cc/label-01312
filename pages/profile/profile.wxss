@@ -239,6 +239,10 @@
   background-color: rgba(247, 186, 42, 0.15);
 }
 
+.menu-icon-wrapper.myMessages {
+  background-color: rgba(255, 77, 79, 0.15);
+}
+
 .menu-emoji {
   font-size: 28rpx;
 }
@@ -247,6 +251,29 @@
   font-size: 30rpx;
   color: var(--text-primary);
   font-weight: 500;
+}
+
+.menu-right {
+  display: flex;
+  align-items: center;
+}
+
+.menu-badge {
+  min-width: 36rpx;
+  height: 36rpx;
+  background-color: #ff4d4f;
+  border-radius: 18rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10rpx;
+  margin-right: 16rpx;
+}
+
+.badge-text {
+  font-size: 22rpx;
+  color: #fff;
+  line-height: 1;
 }
 
 .menu-arrow {

@@ -9,10 +9,28 @@ const db = cloud.database();
 const _ = db.command;
 
 /**
+ * 创建消息通知（内部函数）
+ */
+async function createNotification(notificationData) {
+  try {
+    await cloud.callFunction({
+      name: 'manageNotification',
+      data: {
+        action: 'create',
+        data: notificationData
+      }
+    });
+  } catch (err) {
+    console.error('创建通知失败', err);
+    // 通知创建失败不影响主业务流程
+  }
+}
+
+/**
  * 预约管理云函数
  * 功能：创建预约、更新预约状态、取消预约、检查预约状态
  * 特点：使用事务防止同一时间被多人预约
- * 
+ *
  * 支持的 action:
  * - create: 创建预约
  * - updateStatus: 更新预约状态
@@ -23,7 +41,7 @@ const _ = db.command;
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext();
   const openid = wxContext.OPENID;
-  
+
   const { action, data } = event;
 
   try {
@@ -96,7 +114,7 @@ async function createAppointment(openid, data) {
   const providerResult = await db.collection('users').where({
     _openid: providerId
   }).get();
-  
+
   const receiverResult = await db.collection('users').where({
     _openid: openid
   }).get();
@@ -130,6 +148,21 @@ async function createAppointment(openid, data) {
 
   const result = await db.collection('appointments').add({
     data: appointment
+  });
+
+  // 发送通知给技能提供者
+  await createNotification({
+    userId: providerId,
+    type: 'appointment_new',
+    title: '收到新预约',
+    content: `${receiverInfo.nickName || '有人'}预约了您的技能「${skill.title}」`,
+    relatedId: result._id,
+    relatedType: 'appointment',
+    extraData: {
+      skillTitle: skill.title,
+      appointmentTime: appointmentTime,
+      partnerName: receiverInfo.nickName || '未知用户'
+    }
   });
 
   return {
@@ -188,6 +221,75 @@ async function updateAppointmentStatus(openid, data) {
       updateTime: db.serverDate()
     }
   });
+
+  // 发送状态变更通知
+  const notificationTypeMap = {
+    'confirmed': 'appointment_accepted',
+    'cancelled': 'appointment_cancelled',
+    'completed': 'appointment_completed'
+  };
+
+  const notificationTitleMap = {
+    'confirmed': '预约已接受',
+    'cancelled': '预约已取消',
+    'completed': '技能交换完成'
+  };
+
+  const notificationContentMap = {
+    'confirmed': `您的预约「${appointment.skillTitle}」已被接受`,
+    'cancelled': `预约「${appointment.skillTitle}」已被取消`,
+    'completed': `技能交换「${appointment.skillTitle}」已完成，快去评价吧`
+  };
+
+  // 确定通知接收者
+  let notifyUserId;
+  let partnerName;
+  if (status === 'confirmed' || status === 'cancelled') {
+    // 通知预约发起者（receiver）
+    notifyUserId = appointment.receiverId;
+    partnerName = appointment.providerInfo.nickName;
+  } else if (status === 'completed') {
+    // 完成时通知双方
+    notifyUserId = appointment.receiverId === openid ? appointment.providerId : appointment.receiverId;
+    partnerName = appointment.receiverId === openid ? appointment.receiverInfo.nickName : appointment.providerInfo.nickName;
+  }
+
+  if (notifyUserId && notificationTypeMap[status]) {
+    await createNotification({
+      userId: notifyUserId,
+      type: notificationTypeMap[status],
+      title: notificationTitleMap[status],
+      content: notificationContentMap[status],
+      relatedId: appointmentId,
+      relatedType: 'appointment',
+      extraData: {
+        skillTitle: appointment.skillTitle,
+        appointmentTime: appointment.appointmentTime,
+        partnerName: partnerName,
+        status: status
+      }
+    });
+
+    // 完成状态时，给另一方也发送通知
+    if (status === 'completed') {
+      const otherUserId = notifyUserId === appointment.receiverId ? appointment.providerId : appointment.receiverId;
+      const otherPartnerName = notifyUserId === appointment.receiverId ? appointment.providerInfo.nickName : appointment.receiverInfo.nickName;
+      await createNotification({
+        userId: otherUserId,
+        type: 'appointment_completed',
+        title: '技能交换完成',
+        content: `技能交换「${appointment.skillTitle}」已完成，快去评价吧`,
+        relatedId: appointmentId,
+        relatedType: 'appointment',
+        extraData: {
+          skillTitle: appointment.skillTitle,
+          appointmentTime: appointment.appointmentTime,
+          partnerName: otherPartnerName,
+          status: status
+        }
+      });
+    }
+  }
 
   // 如果完成，更新双方的交换次数
   if (status === 'completed') {

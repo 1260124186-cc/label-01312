@@ -9,7 +9,8 @@
     "pages/evaluate/evaluate",
     "pages/mySkills/mySkills",
     "pages/login/login",
-    "pages/editSkill/editSkill"
+    "pages/editSkill/editSkill",
+    "pages/message/message"
   ],
   "window": {
     "backgroundColor": "#F6F6F6",
@@ -38,8 +39,8 @@
         "text": "匹配"
       },
       {
-        "pagePath": "pages/appointment/appointment",
-        "text": "预约"
+        "pagePath": "pages/message/message",
+        "text": "消息"
       },
       {
         "pagePath": "pages/profile/profile",
