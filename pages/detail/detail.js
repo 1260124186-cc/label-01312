@@ -249,6 +249,9 @@ Page({
         };
         app.globalData.mockData.appointments.push(newAppt);
         
+        // 给技能提供者发送新预约通知
+        app.sendAppointmentNotification(newAppt, 'pending');
+        
         util.hideLoading();
         util.showSuccess('预约成功');
         that.setData({
@@ -276,7 +279,20 @@ Page({
       success: res => {
         util.hideLoading();
         if (res.result.code === 0) {
-          util.showSuccess('预约成功');
+            // 给技能提供者发送新预约通知  
+            const newAppt = {
+              _id: res.result.appointmentId,
+              skillId: that.data.skillId,
+              providerId: that.data.skillInfo._openid,
+              receiverId: wx.getStorageSync('openid'),
+              providerInfo: that.data.skillInfo.publisherInfo,
+              skillTitle: that.data.skillInfo.title,
+              appointmentTime: appointmentTime,
+              status: 'pending'
+            };
+            app.sendAppointmentNotification(newAppt, 'pending');
+            
+            util.showSuccess('预约成功');
           that.setData({
             showAppointmentForm: false,
             hasAppointment: true,

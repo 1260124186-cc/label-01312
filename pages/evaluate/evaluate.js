@@ -246,6 +246,9 @@ Page({
         };
         app.globalData.mockData.evaluations.push(newEval);
         
+        // 给被评价者发送新评价通知
+        app.sendEvaluationNotification(newEval, appt);
+        
         util.hideLoading();
         util.showSuccess('评价成功');
         that.setData({ submitting: false });
@@ -268,6 +271,17 @@ Page({
       success: res => {
         util.hideLoading();
         if (res.result.code === 0) {
+          // 给被评价者发送新评价通知
+          const openid = wx.getStorageSync('openid');
+          const appt = that.data.appointmentInfo;
+          const evaluateeId = appt.providerId === openid ? appt.receiverId : appt.providerId;
+          app.sendEvaluationNotification({
+            evaluatorId: openid,
+            evaluateeId: evaluateeId,
+            rating: that.data.rating,
+            comment: that.data.comment.trim()
+          }, appt);
+          
           util.showSuccess('评价成功');
           setTimeout(() => {
             wx.navigateBack();

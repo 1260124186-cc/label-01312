@@ -57,11 +57,12 @@ App({
     // 尝试从本地存储获取用户信息
     const userInfo = wx.getStorageSync('userInfo');
     const openid = wx.getStorageSync('openid');
-    
+
     if (userInfo && openid) {
       that.globalData.userInfo = userInfo;
       that.globalData.openid = openid;
       that.globalData.isLogin = true;
+      that.updateTabBarBadge();
     }
   },
 
@@ -72,12 +73,13 @@ App({
     this.globalData.userInfo = null;
     this.globalData.openid = null;
     this.globalData.isLogin = false;
+    this.updateTabBarBadge();
   },
 
   // 调用云函数登录
   cloudLogin: function(callback) {
     const that = this;
-    
+
     // 开发模式使用模拟登录
     if (that.globalData.devMode) {
       const mockResult = {
@@ -108,7 +110,7 @@ App({
   // 初始化模拟数据
   initMockData: function() {
     const now = new Date();
-    
+
     this.globalData.mockData = {
       // 模拟用户数据
       users: [
@@ -146,7 +148,7 @@ App({
           totalExchanges: 15
         }
       ],
-      
+
       // 模拟技能数据
       skills: [
         {
@@ -320,11 +322,244 @@ App({
           tags: ['耐心教学', '专业能力强', '态度友好'],
           createTime: new Date(now - 4 * 24 * 60 * 60 * 1000)
         }
+      ],
+
+      notifications: [
+        {
+          _id: 'notif_001',
+          userId: 'mock_openid_001',
+          type: 'appointment',
+          title: '预约已被接受',
+          content: '您的PS修图教学预约已被王五接受，请准时参加！',
+          icon: '✅',
+          isRead: false,
+          relatedId: 'appt_001',
+          relatedPage: '/pages/appointment/appointment',
+          createTime: new Date(now - 1 * 24 * 60 * 60 * 1000),
+          createTimeStr: '2026-02-04 10:30'
+        },
+        {
+          _id: 'notif_002',
+          userId: 'mock_openid_001',
+          type: 'evaluation',
+          title: '收到新评价',
+          content: '李四对您的英语口语教学给出了5星好评！',
+          icon: '⭐',
+          isRead: false,
+          relatedId: 'eval_001',
+          relatedPage: '/pages/profile/profile',
+          createTime: new Date(now - 2 * 24 * 60 * 60 * 1000),
+          createTimeStr: '2026-02-03 15:20'
+        },
+        {
+          _id: 'notif_003',
+          userId: 'mock_openid_001',
+          type: 'system',
+          title: '新预约提醒',
+          content: '您收到了一个新的技能交换预约请求！',
+          icon: '📅',
+          isRead: true,
+          relatedId: 'appt_001',
+          relatedPage: '/pages/appointment/appointment',
+          createTime: new Date(now - 3 * 24 * 60 * 60 * 1000),
+          createTimeStr: '2026-02-02 09:15'
+        }
       ]
     };
 
     // 设置模拟的openid
     wx.setStorageSync('openid', 'mock_openid_001');
     this.globalData.openid = 'mock_openid_001';
+
+    this.initNotifications();
+  },
+
+  initNotifications: function() {
+    const notifications = wx.getStorageSync('notifications');
+    if (!notifications || notifications.length === 0) {
+      wx.setStorageSync('notifications', this.globalData.mockData.notifications);
+    }
+  },
+
+  getMessages: function() {
+    if (!this.globalData.isLogin) {
+      return [];
+    }
+    const openid = this.globalData.openid;
+    const notifications = wx.getStorageSync('notifications') || [];
+    return notifications.filter(n => n.userId === openid).sort((a, b) =>
+      new Date(b.createTime) - new Date(a.createTime)
+    );
+  },
+
+  getUnreadMessageCount: function() {
+    if (!this.globalData.isLogin) {
+      return 0;
+    }
+    const openid = this.globalData.openid;
+    const notifications = wx.getStorageSync('notifications') || [];
+    return notifications.filter(n => n.userId === openid && !n.isRead).length;
+  },
+
+  markMessageAsRead: function(messageId) {
+    const notifications = wx.getStorageSync('notifications') || [];
+    const index = notifications.findIndex(n => n._id === messageId);
+    if (index !== -1) {
+      notifications[index].isRead = true;
+      wx.setStorageSync('notifications', notifications);
+    }
+    this.updateTabBarBadge();
+  },
+
+  markAllMessagesAsRead: function() {
+    const openid = this.globalData.openid;
+    const notifications = wx.getStorageSync('notifications') || [];
+    notifications.forEach(n => {
+      if (n.userId === openid) {
+        n.isRead = true;
+      }
+    });
+    wx.setStorageSync('notifications', notifications);
+    this.updateTabBarBadge();
+  },
+
+  deleteMessage: function(messageId) {
+    let notifications = wx.getStorageSync('notifications') || [];
+    notifications = notifications.filter(n => n._id !== messageId);
+    wx.setStorageSync('notifications', notifications);
+    this.updateTabBarBadge();
+  },
+
+  addNotification: function(notification) {
+    if (!this.globalData.isLogin) {
+      return;
+    }
+    const notifications = wx.getStorageSync('notifications') || [];
+    const now = new Date();
+    const newNotification = {
+      _id: 'notif_' + Date.now(),
+      userId: notification.userId,
+      type: notification.type || 'system',
+      title: notification.title,
+      content: notification.content,
+      icon: notification.icon || '📬',
+      isRead: false,
+      relatedId: notification.relatedId || '',
+      relatedPage: notification.relatedPage || '',
+      createTime: now,
+      createTimeStr: now.toLocaleString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).replace(/\//g, '-')
+    };
+    notifications.unshift(newNotification);
+    wx.setStorageSync('notifications', notifications);
+
+    this.updateTabBarBadge();
+
+    if (this.globalData.enablePush) {
+      wx.showToast({
+        title: notification.title,
+        icon: 'none',
+        duration: 3000
+      });
+    }
+  },
+
+  updateTabBarBadge: function() {
+    const unreadCount = this.getUnreadMessageCount();
+    try {
+      if (unreadCount > 0) {
+        wx.setTabBarBadge({
+          index: 3,
+          text: unreadCount > 99 ? '99+' : unreadCount.toString(),
+          fail: (err) => {
+            console.log('setTabBarBadge delayed, will retry');
+          }
+        });
+      } else {
+        wx.removeTabBarBadge({
+          index: 3,
+          fail: (err) => {
+            console.log('removeTabBarBadge delayed');
+          }
+        });
+      }
+    } catch (e) {
+      console.log('tabbar api not ready yet');
+    }
+  },
+
+  clearNotificationBadge: function() {
+    if (!this.globalData.isLogin) {
+      return;
+    }
+    this.getMessages().forEach(m => {
+      if (!m.isRead) {
+        this.markMessageAsRead(m._id);
+      }
+    });
+  },
+
+  sendAppointmentNotification: function(appointment, status) {
+    const statusMap = {
+      'confirmed': {
+        title: '预约已被接受',
+        content: `您的「${appointment.skillTitle}」预约已被接受！`,
+        icon: '✅'
+      },
+      'cancelled': {
+        title: '预约已取消',
+        content: `「${appointment.skillTitle}」的预约已取消`,
+        icon: '❌'
+      },
+      'pending': {
+        title: '收到新预约',
+        content: `您收到了「${appointment.skillTitle}」的新预约请求！`,
+        icon: '📅'
+      },
+      'rejected': {
+        title: '预约已被拒绝',
+        content: `很遗憾，您的「${appointment.skillTitle}」预约已被拒绝`,
+        icon: '🚫'
+      }
+    };
+
+    const config = statusMap[status];
+    if (!config) return;
+
+    let userId = appointment.receiverId;
+    if (status === 'pending') {
+      userId = appointment.providerId;
+    } else if (status === 'cancelled') {
+      const currentUser = this.globalData.openid;
+      userId = currentUser === appointment.providerId ?
+        appointment.receiverId : appointment.providerId;
+    }
+
+    this.addNotification({
+      userId: userId,
+      type: 'appointment',
+      title: config.title,
+      content: config.content,
+      icon: config.icon,
+      relatedId: appointment._id,
+      relatedPage: '/pages/appointment/appointment'
+    });
+  },
+
+  sendEvaluationNotification: function(evaluation) {
+    this.addNotification({
+      userId: evaluation.evaluateeId,
+      type: 'evaluation',
+      title: '收到新评价',
+      content: `您收到了${evaluation.rating}星好评！`,
+      icon: '⭐',
+      relatedId: evaluation._id,
+      relatedPage: '/pages/profile/profile'
+    });
   }
 });
