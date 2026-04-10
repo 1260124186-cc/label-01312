@@ -3,8 +3,9 @@
     "pages/index/index",
     "pages/publish/publish",
     "pages/match/match",
-    "pages/appointment/appointment",
+    "pages/messages/messages",
     "pages/profile/profile",
+    "pages/appointment/appointment",
     "pages/detail/detail",
     "pages/evaluate/evaluate",
     "pages/mySkills/mySkills",
@@ -38,8 +39,8 @@
         "text": "匹配"
       },
       {
-        "pagePath": "pages/appointment/appointment",
-        "text": "预约"
+        "pagePath": "pages/messages/messages",
+        "text": "消息"
       },
       {
         "pagePath": "pages/profile/profile",

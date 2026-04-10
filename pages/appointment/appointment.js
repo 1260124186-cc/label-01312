@@ -40,13 +40,13 @@ Page({
     // 检查登录状态
     const isLogin = app.globalData.isLogin;
     this.setData({ isLogin: isLogin });
-    
+
     if (!isLogin) {
       // 未登录时清空列表
       this.setData({ appointmentList: [] });
       return;
     }
-    
+
     this.loadAppointments(true);
   },
 
@@ -98,7 +98,7 @@ Page({
       return new Promise((resolve) => {
         setTimeout(() => {
           const openid = wx.getStorageSync('openid');
-          let mockAppts = app.globalData.mockData.appointments.filter(item => 
+          let mockAppts = app.globalData.mockData.appointments.filter(item =>
             item.providerId === openid || item.receiverId === openid
           );
 
@@ -109,7 +109,7 @@ Page({
 
           const list = mockAppts.map(item => {
             // 检查是否已评价
-            const hasEvaluated = app.globalData.mockData.evaluations.some(e => 
+            const hasEvaluated = app.globalData.mockData.evaluations.some(e =>
               e.appointmentId === item._id && e.evaluatorId === openid
             );
             return {
@@ -194,7 +194,7 @@ Page({
   // 确认预约
   confirmAppointment: function (e) {
     const appointment = e.currentTarget.dataset.appointment;
-    
+
     util.showConfirm('确定接受这个预约吗？').then(confirm => {
       if (confirm) {
         this.updateAppointmentStatus(appointment._id, 'confirmed');
@@ -205,7 +205,7 @@ Page({
   // 完成预约
   completeAppointment: function (e) {
     const appointment = e.currentTarget.dataset.appointment;
-    
+
     util.showConfirm('确定技能交换已完成吗？完成后可以进行评价。').then(confirm => {
       if (confirm) {
         this.updateAppointmentStatus(appointment._id, 'completed');
@@ -216,7 +216,7 @@ Page({
   // 取消预约
   cancelAppointment: function (e) {
     const appointment = e.currentTarget.dataset.appointment;
-    
+
     util.showConfirm('确定要取消这个预约吗？').then(confirm => {
       if (confirm) {
         this.updateAppointmentStatus(appointment._id, 'cancelled');
@@ -235,6 +235,7 @@ Page({
         const appt = app.globalData.mockData.appointments.find(a => a._id === appointmentId);
         if (appt) {
           appt.status = status;
+          app.sendAppointmentNotification(appt, status);
         }
         util.hideLoading();
         util.showSuccess('操作成功');
@@ -243,6 +244,7 @@ Page({
       return;
     }
 
+    const appointment = this.data.appointmentList.find(a => a._id === appointmentId);
     wx.cloud.callFunction({
       name: 'manageAppointment',
       data: {
@@ -256,7 +258,9 @@ Page({
         util.hideLoading();
         if (res.result.code === 0) {
           util.showSuccess('操作成功');
-          // 刷新列表
+          if (appointment) {
+            app.sendAppointmentNotification(appointment, status);
+          }
           this.loadAppointments(true);
         } else {
           util.showToast(res.result.message || '操作失败');
