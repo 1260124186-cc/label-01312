@@ -1,0 +1,73 @@
+<!--pages/mySkills/mySkills.wxml-->
+<view class="my-skills-page">
+  <!-- 技能列表 -->
+  <view class="skill-list">
+    <block wx:if="{{skillList.length > 0}}">
+      <view class="skill-card" wx:for="{{skillList}}" wx:key="_id">
+        <!-- 卡片头部 -->
+        <view class="card-header" bindtap="viewDetail" data-skill="{{item}}">
+          <view class="title-row">
+            <view class="type-badge {{item.type}}">
+              <text>{{item.type === 'skill' ? '技能' : '需求'}}</text>
+            </view>
+            <view class="status-badge {{item.status}}">
+              <text>{{item.statusText}}</text>
+            </view>
+          </view>
+          <text class="title">{{item.title}}</text>
+          <text class="description ellipsis-2">{{item.description}}</text>
+        </view>
+
+        <!-- 卡片信息 -->
+        <view class="card-info">
+          <view class="info-row">
+            <view class="info-item">
+              <text class="info-icon">📁</text>
+              <text class="value">{{item.categoryName}}</text>
+            </view>
+            <view class="info-item">
+              <text class="info-icon">⏱️</text>
+              <text class="value">{{item.duration}}小时</text>
+            </view>
+          </view>
+          <view class="info-row">
+            <view class="info-item">
+              <text class="info-icon">👁️</text>
+              <text class="value">{{item.viewCount || 0}}次浏览</text>
+            </view>
+            <view class="info-item">
+              <text class="info-icon">📅</text>
+              <text class="value">{{item.createTimeStr}}</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 操作按钮 -->
+        <view class="card-actions">
+          <button class="action-btn edit" wx:if="{{item.status === 'active'}}" bindtap="editSkill" data-skill="{{item}}">编辑</button>
+          <button class="action-btn close" wx:if="{{item.status === 'active'}}" bindtap="closeSkill" data-skill="{{item}}">关闭</button>
+          <button class="action-btn republish" wx:if="{{item.status === 'closed'}}" bindtap="republishSkill" data-skill="{{item}}">重新发布</button>
+          <button class="action-btn delete" wx:if="{{item.status === 'closed'}}" bindtap="deleteSkill" data-skill="{{item}}">删除</button>
+        </view>
+      </view>
+    </block>
+
+    <!-- 空状态 -->
+    <view class="empty-state-center" wx:if="{{skillList.length === 0 && !loading}}">
+      <text class="empty-icon">{{type === 'skill' ? '🎯' : '🔍'}}</text>
+      <text class="empty-text">暂无{{type === 'skill' ? '技能' : '需求'}}</text>
+      <text class="empty-tip">点击下方按钮发布您的第一个{{type === 'skill' ? '技能' : '需求'}}</text>
+      <button class="empty-btn" bindtap="goPublish">去发布</button>
+    </view>
+
+    <!-- 加载状态 -->
+    <view class="loading-state" wx:if="{{loading}}">
+      <text>加载中...</text>
+    </view>
+
+    <!-- 没有更多 -->
+    <view class="no-more" wx:if="{{!hasMore && skillList.length > 0}}">
+      <text>— 没有更多了 —</text>
+    </view>
+  </view>
+</view>

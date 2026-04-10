@@ -1,0 +1,146 @@
+<!--pages/detail/detail.wxml-->
+<view class="detail-page">
+  <!-- 加载中 -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- 详情内容 -->
+  <block wx:if="{{!loading && skillInfo}}">
+    <!-- 发布者信息 -->
+    <view class="publisher-card">
+      <view class="publisher-info">
+        <view class="avatar-wrapper">
+          <image class="avatar" src="{{skillInfo.publisherInfo.avatarUrl}}" mode="aspectFill" wx:if="{{skillInfo.publisherInfo.avatarUrl}}"></image>
+          <view class="avatar-default" wx:else>
+            <text>👤</text>
+          </view>
+        </view>
+        <view class="info">
+          <text class="nickname">{{skillInfo.publisherInfo.nickName || '匿名用户'}}</text>
+          <view class="meta">
+            <text class="campus">{{skillInfo.campus}}</text>
+            <text class="credit">信誉分: {{skillInfo.publisherInfo.creditScore || 100}}</text>
+          </view>
+        </view>
+      </view>
+      <view class="type-badge {{skillInfo.type === 'skill' ? 'skill' : 'need'}}">
+        <text>{{skillInfo.type === 'skill' ? '提供技能' : '寻找技能'}}</text>
+      </view>
+    </view>
+
+    <!-- 技能详情 -->
+    <view class="skill-detail-card">
+      <view class="skill-title">{{skillInfo.title}}</view>
+      
+      <view class="info-row">
+        <text class="label">分类</text>
+        <text class="value">{{skillInfo.categoryName}}</text>
+      </view>
+      
+      <view class="info-row">
+        <text class="label">交换时长</text>
+        <text class="value">{{skillInfo.duration}} 小时</text>
+      </view>
+      
+      <view class="info-row">
+        <text class="label">可用时间</text>
+        <view class="time-tags">
+          <view class="time-tag" wx:for="{{skillInfo.availableTime}}" wx:key="*this">
+            <text>{{item === 'morning' ? '上午' : item === 'afternoon' ? '下午' : item === 'evening' ? '晚上' : '周末'}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="divider"></view>
+
+      <view class="section-title">详细描述</view>
+      <view class="description">{{skillInfo.description}}</view>
+
+      <view class="footer-info">
+        <text class="view-count">{{skillInfo.viewCount || 0}} 次浏览</text>
+        <text class="publish-time">发布于 {{skillInfo.createTimeStr}}</text>
+      </view>
+    </view>
+
+    <!-- 底部操作栏 -->
+    <view class="action-bar safe-bottom">
+      <block wx:if="{{!isOwner}}">
+        <!-- 已预约状态 -->
+        <button class="action-btn disabled" wx:if="{{hasAppointment}}" disabled>
+          <text>已预约</text>
+        </button>
+        <!-- 未预约状态 -->
+        <button class="action-btn primary" wx:else bindtap="contactPublisher">
+          <text>立即预约</text>
+        </button>
+      </block>
+      <block wx:else>
+        <button class="action-btn secondary" bindtap="editSkill">
+          <text>编辑</text>
+        </button>
+        <button class="action-btn danger" bindtap="closeSkill">
+          <text>关闭</text>
+        </button>
+      </block>
+    </view>
+  </block>
+
+  <!-- 预约表单弹窗 -->
+  <view class="appointment-modal" wx:if="{{showAppointmentForm}}" bindtap="closeAppointmentForm">
+    <view class="modal-content" catchtap="stopPropagation">
+      <view class="modal-header">
+        <text class="modal-title">预约交换</text>
+        <view class="close-btn" bindtap="closeAppointmentForm">✕</view>
+      </view>
+
+      <view class="modal-body">
+        <view class="form-group">
+          <text class="form-label">预约日期</text>
+          <picker mode="date" 
+                  start="{{minDate}}" 
+                  end="{{maxDate}}"
+                  value="{{appointmentData.date}}"
+                  bindchange="onDateChange">
+            <view class="picker-box">
+              <text>{{appointmentData.date || '请选择日期'}}</text>
+              <text class="arrow">▼</text>
+            </view>
+          </picker>
+        </view>
+
+        <view class="form-group">
+          <text class="form-label">预约时间</text>
+          <picker mode="time" 
+                  value="{{appointmentData.time}}"
+                  bindchange="onTimeChange">
+            <view class="picker-box">
+              <text>{{appointmentData.time || '请选择时间'}}</text>
+              <text class="arrow">▼</text>
+            </view>
+          </picker>
+        </view>
+
+        <view class="form-group">
+          <text class="form-label">交换地点</text>
+          <input class="form-input" 
+                 placeholder="如：图书馆自习室、咖啡厅等"
+                 value="{{appointmentData.location}}"
+                 bindinput="onLocationInput" />
+        </view>
+
+        <view class="form-group">
+          <text class="form-label">留言（可选）</text>
+          <textarea class="form-textarea" 
+                    placeholder="向对方介绍一下自己吧"
+                    value="{{appointmentData.message}}"
+                    bindinput="onMessageInput" />
+        </view>
+      </view>
+
+      <view class="modal-footer">
+        <button class="submit-btn" bindtap="submitAppointment">提交预约</button>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,88 @@
+<!--pages/editSkill/editSkill.wxml-->
+<view class="edit-page">
+  <view class="form-container">
+    <!-- 标题输入 -->
+    <view class="form-group">
+      <text class="form-label">标题</text>
+      <input class="form-input"
+             placeholder="请输入标题，简洁明了"
+             value="{{formData.title}}"
+             bindinput="onTitleInput"
+             maxlength="30" />
+    </view>
+
+    <!-- 详细描述 -->
+    <view class="form-group">
+      <text class="form-label">详细描述</text>
+      <textarea class="form-textarea"
+                placeholder="详细介绍您的技能或需求..."
+                value="{{formData.description}}"
+                bindinput="onDescInput"
+                maxlength="500" />
+      <text class="char-count">{{formData.description.length}}/500</text>
+    </view>
+
+    <!-- 分类选择 -->
+    <view class="form-group">
+      <text class="form-label">分类</text>
+      <picker mode="selector" 
+              range="{{categoryNames}}" 
+              value="{{formData.categoryIndex}}"
+              bindchange="onCategoryChange">
+        <view class="picker-box {{formData.categoryIndex >= 0 ? '' : 'placeholder'}}">
+          <text>{{formData.categoryIndex >= 0 ? categoryNames[formData.categoryIndex] : '请选择分类'}}</text>
+          <text class="picker-arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 时长选择 -->
+    <view class="form-group">
+      <text class="form-label">预计时长（小时）</text>
+      <picker mode="selector"
+              range="{{durationOptions}}"
+              value="{{durationIndex}}"
+              bindchange="onDurationChange">
+        <view class="picker-box">
+          <text>{{durationOptions[durationIndex]}} 小时</text>
+          <text class="picker-arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 校区选择 -->
+    <view class="form-group">
+      <text class="form-label">校区</text>
+      <picker mode="selector"
+              range="{{campusNames}}"
+              value="{{formData.campusIndex}}"
+              bindchange="onCampusChange">
+        <view class="picker-box {{formData.campusIndex >= 0 ? '' : 'placeholder'}}">
+          <text>{{formData.campusIndex >= 0 ? campusNames[formData.campusIndex] : '请选择校区'}}</text>
+          <text class="picker-arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 可用时间 -->
+    <view class="form-group">
+      <text class="form-label">可用时间（可多选）</text>
+      <view class="time-slots">
+        <view class="time-slot {{item.selected ? 'selected' : ''}}"
+              wx:for="{{timeSlots}}"
+              wx:key="id"
+              bindtap="toggleTimeSlot"
+              data-id="{{item.id}}">
+          <text>{{item.name}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 提交按钮 -->
+    <button class="submit-btn {{submitting ? 'disabled' : ''}}"
+            bindtap="submitEdit"
+            disabled="{{submitting}}">
+      {{submitting ? '保存中...' : '保存修改'}}
+    </button>
+  </view>
+</view>

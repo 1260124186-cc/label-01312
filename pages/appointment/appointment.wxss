@@ -1,0 +1,326 @@
+/* pages/appointment/appointment.wxss */
+
+.appointment-page {
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  padding-bottom: 120rpx;
+}
+
+/* 标签栏 */
+.tab-bar {
+  display: flex;
+  background-color: #ffffff;
+  border-bottom: 1rpx solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.tab-item {
+  flex: 1;
+  text-align: center;
+  padding: 28rpx 0;
+  font-size: 28rpx;
+  color: var(--text-regular);
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.tab-item.active {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.tab-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 48rpx;
+  height: 6rpx;
+  background-color: var(--primary-color);
+  border-radius: 3rpx;
+}
+
+/* 预约列表 */
+.appointment-list {
+  padding: 20rpx;
+}
+
+.appointment-card {
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+/* 卡片头部 */
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+
+.partner-info {
+  display: flex;
+  align-items: center;
+}
+
+.avatar-wrapper {
+  width: 80rpx;
+  height: 80rpx;
+  margin-right: 16rpx;
+}
+
+.avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  background-color: var(--bg-color);
+}
+
+.avatar-default {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  background-color: var(--bg-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+}
+
+.nickname {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 4rpx;
+}
+
+.role {
+  font-size: 22rpx;
+  color: var(--text-secondary);
+}
+
+.status-badge {
+  padding: 8rpx 20rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+}
+
+.status-badge.pending {
+  background-color: rgba(230, 162, 60, 0.1);
+  color: var(--warning-color);
+}
+
+.status-badge.confirmed {
+  background-color: rgba(74, 144, 217, 0.1);
+  color: var(--primary-color);
+}
+
+.status-badge.completed {
+  background-color: rgba(103, 194, 58, 0.1);
+  color: var(--secondary-color);
+}
+
+.status-badge.cancelled {
+  background-color: rgba(144, 147, 153, 0.1);
+  color: var(--info-color);
+}
+
+/* 技能信息 */
+.skill-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16rpx 20rpx;
+  background-color: var(--bg-color);
+  border-radius: 12rpx;
+  margin-bottom: 20rpx;
+}
+
+.skill-title {
+  flex: 1;
+  font-size: 28rpx;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.skill-type {
+  padding: 6rpx 16rpx;
+  border-radius: 16rpx;
+  font-size: 22rpx;
+}
+
+.skill-type.skill {
+  background-color: rgba(103, 194, 58, 0.2);
+  color: var(--secondary-color);
+}
+
+.skill-type.need {
+  background-color: rgba(230, 162, 60, 0.2);
+  color: var(--warning-color);
+}
+
+/* 预约详情 */
+.appointment-detail {
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid var(--border-color);
+}
+
+.detail-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 12rpx;
+}
+
+.detail-item:last-child {
+  margin-bottom: 0;
+}
+
+.detail-item .label {
+  width: 180rpx;
+  font-size: 26rpx;
+  color: var(--text-secondary);
+}
+
+.detail-item .value {
+  flex: 1;
+  font-size: 26rpx;
+  color: var(--text-primary);
+}
+
+/* 操作按钮 */
+.card-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16rpx;
+  margin-top: 20rpx;
+  padding: 0;
+}
+
+.action-btn {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 32rpx !important;
+  margin: 0 !important;
+  height: 64rpx;
+  line-height: 64rpx;
+  border-radius: 32rpx;
+  font-size: 26rpx;
+  border: none;
+  flex-shrink: 0;
+  flex-grow: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-btn::after {
+  border: none;
+}
+
+.action-btn.cancel {
+  background-color: var(--bg-color);
+  color: var(--text-regular);
+}
+
+.action-btn.confirm {
+  background-color: var(--primary-color);
+  color: #ffffff;
+}
+
+.action-btn.complete {
+  background-color: var(--secondary-color);
+  color: #ffffff;
+}
+
+.action-btn.evaluate {
+  background-color: var(--warning-color);
+  color: #ffffff;
+}
+
+/* 已评价标签 */
+.evaluated-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 24rpx;
+  height: 64rpx;
+  background-color: rgba(103, 194, 58, 0.1);
+  color: var(--secondary-color);
+  border-radius: 32rpx;
+  font-size: 26rpx;
+  flex-shrink: 0;
+  margin: 0;
+}
+
+/* 空状态居中 */
+.empty-state-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: 40rpx;
+}
+
+.empty-state-center .empty-icon {
+  font-size: 120rpx;
+  margin-bottom: 30rpx;
+}
+
+.empty-state-center .empty-text {
+  font-size: 32rpx;
+  color: var(--text-secondary);
+  margin-bottom: 12rpx;
+}
+
+.empty-state-center .empty-tip {
+  font-size: 26rpx;
+  color: var(--text-secondary);
+}
+
+.empty-state-center .login-btn {
+  margin-top: 40rpx;
+  background: linear-gradient(135deg, #4A90D9 0%, #67B8DE 100%);
+  color: #ffffff;
+  font-size: 28rpx;
+  padding: 20rpx 80rpx;
+  border-radius: 44rpx;
+  border: none;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-state-center .login-btn::after {
+  border: none;
+}
+
+/* 加载状态 */
+.loading-state {
+  text-align: center;
+  padding: 30rpx;
+  font-size: 26rpx;
+  color: var(--text-secondary);
+}
+
+/* 没有更多 */
+.no-more {
+  text-align: center;
+  padding: 30rpx;
+  font-size: 24rpx;
+  color: var(--text-secondary);
+}

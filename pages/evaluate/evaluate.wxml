@@ -1,0 +1,132 @@
+<!--pages/evaluate/evaluate.wxml-->
+<view class="evaluate-page">
+  <!-- 提交评价模式 -->
+  <block wx:if="{{mode === 'submit'}}">
+    <!-- 已评价提示 -->
+    <view class="evaluated-tip" wx:if="{{hasEvaluated}}">
+      <text class="tip-icon">✅</text>
+      <text class="tip-text">您已评价过此次交换</text>
+    </view>
+
+    <!-- 评价表单 -->
+    <view class="evaluate-form" wx:if="{{!hasEvaluated}}">
+      <!-- 预约信息 -->
+      <view class="appointment-info" wx:if="{{appointmentInfo}}">
+        <text class="info-title">{{appointmentInfo.skillTitle}}</text>
+        <text class="info-time">交换时间：{{appointmentInfo.appointmentTime}}</text>
+      </view>
+
+      <!-- 评分 -->
+      <view class="form-section">
+        <text class="section-title">整体评分</text>
+        <view class="rating-stars">
+          <view class="star {{index < rating ? 'active' : ''}}"
+                wx:for="{{[1,2,3,4,5]}}"
+                wx:key="*this"
+                bindtap="selectRating"
+                data-rating="{{index + 1}}">
+            <text>{{index < rating ? '★' : '☆'}}</text>
+          </view>
+        </view>
+        <text class="rating-text">{{rating === 5 ? '非常满意' : rating === 4 ? '满意' : rating === 3 ? '一般' : rating === 2 ? '不满意' : '非常不满意'}}</text>
+      </view>
+
+      <!-- 标签选择 -->
+      <view class="form-section">
+        <text class="section-title">选择标签（可多选）</text>
+        <view class="tag-list">
+          <view class="tag-item {{item.selected ? 'selected' : ''}}"
+                wx:for="{{tags}}"
+                wx:key="id"
+                bindtap="toggleTag"
+                data-id="{{item.id}}">
+            <text>{{item.name}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 评价内容 -->
+      <view class="form-section">
+        <text class="section-title">评价内容</text>
+        <textarea class="comment-input"
+                  placeholder="分享您的交换体验..."
+                  maxlength="200"
+                  value="{{comment}}"
+                  bindinput="onCommentInput" />
+        <view class="input-tip">{{comment.length}}/200</view>
+      </view>
+
+      <!-- 提交按钮 -->
+      <button class="submit-btn {{submitting ? 'disabled' : ''}}"
+              bindtap="submitEvaluation"
+              disabled="{{submitting}}">
+        {{submitting ? '提交中...' : '提交评价'}}
+      </button>
+    </view>
+  </block>
+
+  <!-- 查看评价列表模式 -->
+  <block wx:if="{{mode === 'list'}}">
+    <!-- 评价概览卡片 -->
+    <view class="overview-card-new">
+      <view class="overview-score-section">
+        <text class="score-number">{{averageRating}}</text>
+        <text class="score-label">综合评分</text>
+      </view>
+      <view class="overview-divider"></view>
+      <view class="overview-stats-section">
+        <view class="stats-row">
+          <view class="overview-stars-new">
+            <text class="star-icon" wx:for="{{[1,2,3,4,5]}}" wx:key="*this">
+              {{index < averageRating ? '★' : '☆'}}
+            </text>
+          </view>
+        </view>
+        <view class="stats-row">
+          <text class="total-label">共 {{totalEvaluations}} 条评价</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 评价列表 -->
+    <view class="evaluation-list" wx:if="{{evaluationList.length > 0}}">
+      <view class="evaluation-item" wx:for="{{evaluationList}}" wx:key="_id">
+        <view class="evaluator-info">
+          <view class="avatar-wrapper">
+            <image class="avatar" src="{{item.evaluatorInfo.avatarUrl}}" mode="aspectFill" wx:if="{{item.evaluatorInfo.avatarUrl}}"></image>
+            <view class="avatar-default" wx:else>
+              <text>👤</text>
+            </view>
+          </view>
+          <view class="info">
+            <text class="nickname">{{item.evaluatorInfo.nickName || '匿名用户'}}</text>
+            <view class="rating">
+              <text class="star" wx:for="{{[1,2,3,4,5]}}" wx:for-item="star" wx:key="*this">
+                {{star <= item.rating ? '★' : '☆'}}
+              </text>
+            </view>
+          </view>
+        </view>
+
+        <view class="evaluation-content">
+          <view class="tags" wx:if="{{item.tags && item.tags.length > 0}}">
+            <text class="tag" wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
+          </view>
+          <text class="comment" wx:if="{{item.comment}}">{{item.comment}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态居中 -->
+    <view class="empty-state-center" wx:if="{{evaluationList.length === 0 && !loading}}">
+      <text class="empty-icon">📝</text>
+      <text class="empty-text">暂无评价</text>
+      <text class="empty-tip">完成技能交换后可以获得评价哦</text>
+    </view>
+
+    <!-- 加载状态 -->
+    <view class="loading-state" wx:if="{{loading}}">
+      <text>加载中...</text>
+    </view>
+  </block>
+</view>

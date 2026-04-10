@@ -1,0 +1,114 @@
+<!--pages/appointment/appointment.wxml-->
+<view class="appointment-page">
+  <!-- 标签栏 -->
+  <view class="tab-bar">
+    <view class="tab-item {{currentTab === item.key ? 'active' : ''}}"
+          wx:for="{{tabs}}"
+          wx:key="key"
+          bindtap="switchTab"
+          data-tab="{{item.key}}">
+      <text>{{item.name}}</text>
+    </view>
+  </view>
+
+  <!-- 预约列表 -->
+  <view class="appointment-list">
+    <block wx:if="{{appointmentList.length > 0}}">
+      <view class="appointment-card" wx:for="{{appointmentList}}" wx:key="_id">
+        <!-- 卡片头部 -->
+        <view class="card-header">
+          <view class="partner-info">
+            <view class="avatar-wrapper">
+              <image class="avatar" src="{{item.partnerInfo.avatarUrl}}" mode="aspectFill" wx:if="{{item.partnerInfo.avatarUrl}}"></image>
+              <view class="avatar-default" wx:else>
+                <text>👤</text>
+              </view>
+            </view>
+            <view class="info">
+              <text class="nickname">{{item.partnerInfo.nickName || '用户'}}</text>
+              <text class="role">{{item.isProvider ? '向你学习' : '教你技能'}}</text>
+            </view>
+          </view>
+          <view class="status-badge {{item.statusClass}}">
+            <text>{{item.statusText}}</text>
+          </view>
+        </view>
+
+        <!-- 技能信息 -->
+        <view class="skill-info" bindtap="viewSkillDetail" data-appointment="{{item}}">
+          <text class="skill-title">{{item.skillTitle}}</text>
+          <view class="skill-type {{item.skillType === 'skill' ? 'skill' : 'need'}}">
+            <text>{{item.skillType === 'skill' ? '技能' : '需求'}}</text>
+          </view>
+        </view>
+
+        <!-- 预约详情 -->
+        <view class="appointment-detail">
+          <view class="detail-item">
+            <text class="label">📅 预约时间</text>
+            <text class="value">{{item.appointmentTime}}</text>
+          </view>
+          <view class="detail-item">
+            <text class="label">⏱️ 交换时长</text>
+            <text class="value">{{item.duration}} 小时</text>
+          </view>
+          <view class="detail-item" wx:if="{{item.location}}">
+            <text class="label">📍 交换地点</text>
+            <text class="value">{{item.location}}</text>
+          </view>
+          <view class="detail-item" wx:if="{{item.message}}">
+            <text class="label">💬 留言</text>
+            <text class="value">{{item.message}}</text>
+          </view>
+        </view>
+
+        <!-- 操作按钮 -->
+        <view class="card-actions">
+          <!-- 待确认状态 - 提供者 -->
+          <button class="action-btn cancel" wx:if="{{item.status === 'pending' && item.isProvider}}" bindtap="cancelAppointment" data-appointment="{{item}}">拒绝</button>
+          <button class="action-btn confirm" wx:if="{{item.status === 'pending' && item.isProvider}}" bindtap="confirmAppointment" data-appointment="{{item}}">接受</button>
+          
+          <!-- 待确认状态 - 预约者 -->
+          <button class="action-btn cancel" wx:if="{{item.status === 'pending' && !item.isProvider}}" bindtap="cancelAppointment" data-appointment="{{item}}">取消预约</button>
+
+          <!-- 已确认状态 -->
+          <button class="action-btn cancel" wx:if="{{item.status === 'confirmed'}}" bindtap="cancelAppointment" data-appointment="{{item}}">取消</button>
+          <button class="action-btn complete" wx:if="{{item.status === 'confirmed'}}" bindtap="completeAppointment" data-appointment="{{item}}">完成交换</button>
+
+          <!-- 已完成状态 - 已评价 -->
+          <view class="evaluated-tag" wx:if="{{item.status === 'completed' && item.hasEvaluated}}">
+            <text>✓ 已评价</text>
+          </view>
+          
+          <!-- 已完成状态 - 未评价 -->
+          <button class="action-btn evaluate" wx:if="{{item.status === 'completed' && !item.hasEvaluated}}" bindtap="goEvaluate" data-appointment="{{item}}">去评价</button>
+        </view>
+      </view>
+    </block>
+
+    <!-- 未登录状态 -->
+    <view class="empty-state-center" wx:if="{{!isLogin}}">
+      <text class="empty-icon">🔐</text>
+      <text class="empty-text">请先登录</text>
+      <text class="empty-tip">登录后查看您的预约记录</text>
+      <button class="login-btn" bindtap="goLogin">去登录</button>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state-center" wx:elif="{{appointmentList.length === 0 && !loading}}">
+      <text class="empty-icon">📋</text>
+      <text class="empty-text">暂无预约记录</text>
+      <text class="empty-tip">去首页发现感兴趣的技能吧</text>
+    </view>
+
+    <!-- 加载状态 -->
+    <view class="loading-state" wx:if="{{loading}}">
+      <text>加载中...</text>
+    </view>
+
+    <!-- 没有更多 -->
+    <view class="no-more" wx:if="{{!hasMore && appointmentList.length > 0}}">
+      <text>— 没有更多了 —</text>
+    </view>
+  </view>
+</view>

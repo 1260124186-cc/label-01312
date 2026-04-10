@@ -1,0 +1,294 @@
+/* pages/profile/profile.wxss */
+
+.profile-page {
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  padding-bottom: 140rpx;
+}
+
+/* 用户信息卡片 */
+.user-card {
+  background: linear-gradient(135deg, #4A90D9 0%, #67B8DE 100%);
+  padding: 60rpx 30rpx 40rpx;
+  margin-bottom: 20rpx;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+}
+
+.avatar-wrapper {
+  width: 140rpx;
+  height: 140rpx;
+  margin-right: 30rpx;
+}
+
+.avatar {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 50%;
+  border: 4rpx solid rgba(255, 255, 255, 0.5);
+}
+
+.avatar-default {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.3);
+  border: 4rpx solid rgba(255, 255, 255, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 60rpx;
+}
+
+.avatar-default.large {
+  width: 140rpx;
+  height: 140rpx;
+  font-size: 70rpx;
+}
+
+.info {
+  flex: 1;
+}
+
+.nickname {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #ffffff;
+  display: block;
+  margin-bottom: 10rpx;
+}
+
+.campus-info {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 10rpx;
+}
+
+.credit-score {
+  display: flex;
+  align-items: center;
+}
+
+.credit-score .label {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.credit-score .score {
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.credit-score .score.high {
+  color: #67C23A;
+}
+
+.credit-score .score.medium {
+  color: #E6A23C;
+}
+
+.credit-score .score.low {
+  color: #F56C6C;
+}
+
+.edit-btn {
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 12rpx 30rpx;
+  border-radius: 30rpx;
+}
+
+.edit-btn text {
+  font-size: 26rpx;
+  color: #ffffff;
+}
+
+/* 未登录状态 */
+.login-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40rpx 0;
+}
+
+.avatar-placeholder-wrapper {
+  margin-bottom: 30rpx;
+}
+
+.prompt-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.prompt-text {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 20rpx;
+}
+
+.login-btn {
+  background-color: #ffffff;
+  color: #4A90D9;
+  font-size: 28rpx;
+  font-weight: 500;
+  padding: 16rpx 60rpx;
+  border-radius: 40rpx;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-btn::after {
+  border: none;
+}
+
+/* 数据统计 */
+.stats-card {
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 30rpx 0;
+  margin: 0 20rpx 20rpx;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.stats-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.stats-value {
+  font-size: 40rpx;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 8rpx;
+}
+
+.stats-label {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+}
+
+.stats-divider {
+  width: 1rpx;
+  height: 60rpx;
+  background-color: var(--border-color);
+}
+
+/* 功能菜单 */
+.menu-card {
+  background-color: #ffffff;
+  margin: 0 20rpx;
+  border-radius: 16rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx;
+  border-bottom: 1rpx solid var(--border-color);
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-item:active {
+  background-color: #f5f5f5;
+}
+
+.menu-left {
+  display: flex;
+  align-items: center;
+}
+
+.menu-icon-wrapper {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 14rpx;
+  margin-right: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu-icon-wrapper.mySkills {
+  background-color: rgba(103, 194, 58, 0.15);
+}
+
+.menu-icon-wrapper.myNeeds {
+  background-color: rgba(230, 162, 60, 0.15);
+}
+
+.menu-icon-wrapper.myAppointments {
+  background-color: rgba(74, 144, 217, 0.15);
+}
+
+.menu-icon-wrapper.myEvaluations {
+  background-color: rgba(247, 186, 42, 0.15);
+}
+
+.menu-emoji {
+  font-size: 28rpx;
+}
+
+.menu-title {
+  font-size: 30rpx;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.menu-arrow {
+  color: var(--text-secondary);
+}
+
+.arrow {
+  font-size: 36rpx;
+  font-weight: 300;
+}
+
+/* 退出登录按钮 */
+.logout-section {
+  margin: 40rpx 20rpx;
+  padding: 0 20rpx;
+}
+
+.logout-btn {
+  width: 100%;
+  height: 96rpx;
+  background-color: rgba(245, 108, 108, 0.1);
+  color: var(--danger-color);
+  font-size: 32rpx;
+  font-weight: 600;
+  border-radius: 48rpx;
+  border: 2rpx solid var(--danger-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logout-btn::after {
+  border: none;
+}
+
+/* 底部提示 */
+.footer-tip {
+  text-align: center;
+  padding: 40rpx 0 40rpx;
+}
+
+.footer-tip text {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+}

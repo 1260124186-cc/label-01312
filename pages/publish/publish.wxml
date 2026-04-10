@@ -1,0 +1,169 @@
+<!--pages/publish/publish.wxml-->
+<view class="publish-page">
+  <!-- 类型切换 -->
+  <view class="type-switch">
+    <view class="type-item {{publishType === 'skill' ? 'active' : ''}}" 
+          bindtap="switchType" 
+          data-type="skill">
+      <text class="type-icon">✨</text>
+      <text class="type-text">发布技能</text>
+      <text class="type-desc">我可以教别人</text>
+    </view>
+    <view class="type-item {{publishType === 'need' ? 'active' : ''}}" 
+          bindtap="switchType" 
+          data-type="need">
+      <text class="type-icon">🔍</text>
+      <text class="type-text">发布需求</text>
+      <text class="type-desc">我想学习</text>
+    </view>
+  </view>
+
+  <!-- 发布表单 -->
+  <view class="form-container">
+    <!-- 标题 -->
+    <view class="form-group">
+      <view class="form-label">
+        <text class="required">*</text>
+        <text>{{publishType === 'skill' ? '技能标题' : '需求标题'}}</text>
+      </view>
+      <input class="form-input" 
+             type="text" 
+             placeholder="{{publishType === 'skill' ? '如：教PS修图、带练英语口语' : '如：求教Python爬虫、学习吉他'}}"
+             maxlength="30"
+             value="{{formData.title}}"
+             bindinput="onTitleInput" />
+      <view class="input-tip">{{formData.title.length}}/30</view>
+    </view>
+
+    <!-- 详细描述 -->
+    <view class="form-group">
+      <view class="form-label">
+        <text class="required">*</text>
+        <text>详细描述</text>
+      </view>
+      <textarea class="form-textarea" 
+                placeholder="详细描述你的技能/需求，包括你的水平、教学方式等"
+                maxlength="500"
+                value="{{formData.description}}"
+                bindinput="onDescriptionInput" />
+      <view class="input-tip">{{formData.description.length}}/500</view>
+    </view>
+
+    <!-- 分类选择 -->
+    <view class="form-group">
+      <view class="form-label">
+        <text class="required">*</text>
+        <text>技能分类</text>
+      </view>
+      <picker mode="selector" 
+              range="{{categoryNames}}" 
+              value="{{formData.categoryIndex}}"
+              bindchange="onCategoryChange">
+        <view class="picker-box {{formData.categoryIndex >= 0 ? 'selected' : ''}}">
+          <text>{{formData.categoryIndex >= 0 ? categoryNames[formData.categoryIndex] : '请选择分类'}}</text>
+          <text class="picker-arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 校区选择 -->
+    <view class="form-group">
+      <view class="form-label">
+        <text class="required">*</text>
+        <text>所在校区</text>
+      </view>
+      <picker mode="selector" 
+              range="{{campusNames}}" 
+              value="{{formData.campusIndex}}"
+              bindchange="onCampusChange">
+        <view class="picker-box {{formData.campusIndex >= 0 ? 'selected' : ''}}">
+          <text>{{formData.campusIndex >= 0 ? campusNames[formData.campusIndex] : '请选择校区'}}</text>
+          <text class="picker-arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 交换时长 -->
+    <view class="form-group">
+      <view class="form-label">
+        <text class="required">*</text>
+        <text>交换时长（小时）</text>
+      </view>
+      <picker mode="selector" 
+              range="{{durationOptions}}" 
+              value="{{durationIndex}}"
+              bindchange="onDurationChange">
+        <view class="picker-box selected">
+          <text>{{durationOptions[durationIndex]}} 小时</text>
+          <text class="picker-arrow">▼</text>
+        </view>
+      </picker>
+      <view class="form-hint">1小时技能换1小时，公平交换</view>
+    </view>
+
+    <!-- 可用时间 -->
+    <view class="form-group">
+      <view class="form-label">
+        <text class="required">*</text>
+        <text>可用时间段</text>
+      </view>
+      <view class="time-slots">
+        <view class="time-slot {{item.selected ? 'selected' : ''}}" 
+              wx:for="{{timeSlots}}" 
+              wx:key="id"
+              bindtap="toggleTimeSlot"
+              data-index="{{index}}">
+          <text>{{item.name}}</text>
+          <view class="check-icon" wx:if="{{item.selected}}">✓</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 提交按钮 -->
+  <view class="submit-area">
+    <button class="submit-btn {{submitting ? 'disabled' : ''}}" 
+            bindtap="submitPublish"
+            disabled="{{submitting}}">
+      {{submitting ? (mode === 'edit' ? '保存中...' : '发布中...') : (mode === 'edit' ? '保存修改' : '立即发布')}}
+    </button>
+    <view class="submit-tip" wx:if="{{mode !== 'edit'}}">
+      <text>发布即表示同意</text>
+      <text class="link" bindtap="showAgreementModal">《技能交换协议》</text>
+    </view>
+  </view>
+
+  <!-- 协议弹窗 -->
+  <view class="agreement-modal" wx:if="{{showAgreement}}" bindtap="closeAgreementModal">
+    <view class="agreement-content" catchtap="stopPropagation">
+      <view class="agreement-header">
+        <text class="agreement-title">技能交换协议</text>
+        <view class="close-btn" bindtap="closeAgreementModal">✕</view>
+      </view>
+      <scroll-view class="agreement-body" scroll-y>
+        <view class="agreement-text">
+          <text class="section-title">一、总则</text>
+          <text class="section-content">本协议适用于校园技能交换平台（以下简称"平台"）的所有用户。使用本平台即表示您同意遵守本协议的所有条款。</text>
+          
+          <text class="section-title">二、技能交换原则</text>
+          <text class="section-content">1. 平台倡导"无金钱交易"的技能互换模式，用户之间以时间换时间，公平交换。\n2. 1小时技能换1小时，双方应尊重彼此的时间和付出。\n3. 禁止任何形式的金钱交易、有偿服务或商业行为。</text>
+          
+          <text class="section-title">三、用户行为规范</text>
+          <text class="section-content">1. 用户应如实填写个人信息和技能描述，不得虚假宣传。\n2. 用户应按时履行预约，如需取消应提前通知对方。\n3. 用户应尊重对方，保持友好沟通，禁止任何形式的骚扰、歧视或不当行为。\n4. 禁止发布违法、违规或不良信息。</text>
+          
+          <text class="section-title">四、信誉体系</text>
+          <text class="section-content">1. 平台采用信誉积分制度，初始信誉分为100分。\n2. 完成技能交换后，双方可互相评价，评价将影响信誉分。\n3. 信誉分较低的用户可能受到平台限制。</text>
+          
+          <text class="section-title">五、免责声明</text>
+          <text class="section-content">1. 平台仅提供信息发布和匹配服务，不对技能交换的质量和效果负责。\n2. 用户之间的交换行为由双方自行负责，平台不承担任何法律责任。\n3. 请用户注意人身和财产安全，建议在公共场所进行技能交换。</text>
+          
+          <text class="section-title">六、其他</text>
+          <text class="section-content">1. 平台保留对本协议的最终解释权。\n2. 本协议可能会不时更新，请定期查阅。</text>
+        </view>
+      </scroll-view>
+      <view class="agreement-footer">
+        <button class="agree-btn" bindtap="closeAgreementModal">我已阅读并同意</button>
+      </view>
+    </view>
+  </view>
+</view>

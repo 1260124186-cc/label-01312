@@ -1,0 +1,58 @@
+<!--pages/login/login.wxml-->
+<view class="login-page">
+  <!-- 顶部返回 -->
+  <view class="header">
+    <view class="back-btn" bindtap="goBack">
+      <text class="back-icon">‹</text>
+    </view>
+  </view>
+
+  <!-- 主要内容 -->
+  <view class="main-content">
+    <!-- Logo区域 -->
+    <view class="logo-section">
+      <view class="logo-icon">🎯</view>
+      <text class="app-name">技能交换</text>
+      <text class="app-slogan">无金钱交易 · 技能互换 · 共享学习</text>
+    </view>
+
+    <!-- 登录按钮 -->
+    <view class="login-section">
+      <button class="login-btn wechat" wx:if="{{canIUseGetUserProfile}}" bindtap="handleLogin">
+        <text class="btn-icon">💬</text>
+        <text class="btn-text">微信一键登录</text>
+      </button>
+      
+      <view class="tips">
+        <text class="tip-text">登录即表示同意</text>
+        <text class="link" bindtap="showUserAgreement">《用户协议》</text>
+        <text class="tip-text">和</text>
+        <text class="link" bindtap="showPrivacyPolicy">《隐私政策》</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部说明 -->
+  <view class="footer">
+    <text class="footer-text">校园碎片时间技能交换平台</text>
+  </view>
+
+  <!-- 协议弹窗 -->
+  <view class="agreement-modal" wx:if="{{showModal}}" catchtouchmove="preventMove">
+    <view class="modal-mask" bindtap="closeModal"></view>
+    <view class="modal-content">
+      <view class="modal-header">
+        <text class="modal-title">{{modalTitle}}</text>
+        <view class="modal-close" bindtap="closeModal">×</view>
+      </view>
+      <scroll-view class="modal-body" scroll-y>
+        <view class="agreement-content">
+          <text>{{modalContent}}</text>
+        </view>
+      </scroll-view>
+      <view class="modal-footer">
+        <button class="confirm-btn" bindtap="closeModal">我知道了</button>
+      </view>
+    </view>
+  </view>
+</view>

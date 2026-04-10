@@ -1,0 +1,14 @@
+{
+  "name": "manageAppointment",
+  "version": "1.0.0",
+  "description": "预约管理云函数（创建、更新状态、取消）",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

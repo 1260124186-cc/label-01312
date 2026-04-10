@@ -1,0 +1,145 @@
+<!--pages/match/match.wxml-->
+<view class="match-page">
+  <!-- 匹配类型切换 -->
+  <view class="type-switch">
+    <view class="type-item {{matchType === 'findSkill' ? 'active' : ''}}"
+          bindtap="switchMatchType"
+          data-type="findSkill">
+      <text class="type-icon">🔍</text>
+      <text class="type-text">找技能</text>
+      <text class="type-desc">寻找可以教我的人</text>
+    </view>
+    <view class="type-item {{matchType === 'findNeed' ? 'active' : ''}}"
+          bindtap="switchMatchType"
+          data-type="findNeed">
+      <text class="type-icon">👋</text>
+      <text class="type-text">找学员</text>
+      <text class="type-desc">寻找想学习的人</text>
+    </view>
+  </view>
+
+  <!-- 筛选条件 -->
+  <view class="filter-section">
+    <view class="section-title">筛选条件</view>
+    
+    <!-- 分类选择 -->
+    <view class="filter-item">
+      <text class="filter-label">技能分类</text>
+      <picker mode="selector" 
+              range="{{categoryNames}}" 
+              value="{{filters.categoryIndex}}"
+              bindchange="onCategoryChange">
+        <view class="picker-box">
+          <text>{{filters.categoryIndex >= 0 ? categoryNames[filters.categoryIndex] : '不限'}}</text>
+          <text class="arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 校区选择 -->
+    <view class="filter-item">
+      <text class="filter-label">校区偏好</text>
+      <picker mode="selector" 
+              range="{{campusNames}}" 
+              value="{{filters.campusIndex}}"
+              bindchange="onCampusChange">
+        <view class="picker-box">
+          <text>{{filters.campusIndex >= 0 ? campusNames[filters.campusIndex] : '不限'}}</text>
+          <text class="arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 时间选择 -->
+    <view class="filter-item">
+      <text class="filter-label">可用时间</text>
+      <view class="time-slots">
+        <view class="time-slot {{item.selected ? 'selected' : ''}}"
+              wx:for="{{timeSlots}}"
+              wx:key="id"
+              bindtap="toggleTimeSlot"
+              data-index="{{index}}">
+          <text>{{item.name}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view class="filter-actions">
+      <button class="reset-btn" bindtap="resetFilters">重置</button>
+      <button class="match-btn" bindtap="startMatch">开始匹配</button>
+    </view>
+  </view>
+
+  <!-- 匹配结果 -->
+  <view class="result-section">
+    <view class="section-title">
+      <text>匹配结果</text>
+      <text class="result-count" wx:if="{{matchResults.length > 0}}">共{{matchResults.length}}个</text>
+    </view>
+
+    <!-- 结果列表 -->
+    <view class="result-list" wx:if="{{matchResults.length > 0}}">
+      <view class="result-card"
+            wx:for="{{matchResults}}"
+            wx:key="_id"
+            bindtap="onResultTap"
+            data-item="{{item}}">
+        <!-- 匹配分数 -->
+        <view class="match-score">
+          <text class="score-value">{{item.matchScore}}</text>
+          <text class="score-label">匹配度</text>
+        </view>
+
+        <!-- 内容区 -->
+        <view class="card-content">
+          <view class="card-header">
+            <view class="avatar-wrapper">
+              <image class="avatar" src="{{item.publisherInfo.avatarUrl}}" mode="aspectFill" wx:if="{{item.publisherInfo.avatarUrl}}"></image>
+              <view class="avatar-default" wx:else>
+                <text>👤</text>
+              </view>
+            </view>
+            <view class="user-info">
+              <text class="nickname">{{item.publisherInfo.nickName || '匿名用户'}}</text>
+              <text class="campus">{{item.campus}}</text>
+            </view>
+            <view class="credit-badge">
+              <text>信誉 {{item.publisherInfo.creditScore || 100}}</text>
+            </view>
+          </view>
+
+          <view class="card-body">
+            <text class="title">{{item.title}}</text>
+            <text class="description ellipsis-2">{{item.description}}</text>
+          </view>
+
+          <view class="card-footer">
+            <view class="tags">
+              <text class="tag">{{item.categoryName}}</text>
+              <text class="tag">{{item.duration}}小时</text>
+            </view>
+            <text class="time">{{item.createTimeStr}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空结果 -->
+    <view class="empty-result" wx:if="{{matchResults.length === 0 && !loading}}">
+      <text class="empty-icon">🔍</text>
+      <text class="empty-text">{{hasSearched ? '暂无匹配结果' : '点击开始匹配'}}</text>
+      <text class="empty-tip">{{hasSearched ? '试试调整筛选条件' : '设置条件后点击上方按钮开始匹配'}}</text>
+    </view>
+
+    <!-- 加载状态 -->
+    <view class="loading-more" wx:if="{{loading}}">
+      <text>加载中...</text>
+    </view>
+
+    <!-- 没有更多 -->
+    <view class="no-more" wx:if="{{!hasMore && matchResults.length > 0}}">
+      <text>— 没有更多了 —</text>
+    </view>
+  </view>
+</view>

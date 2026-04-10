@@ -1,0 +1,113 @@
+<!--pages/index/index.wxml-->
+<view class="index-page">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <view class="search-box">
+      <text class="search-icon">🔍</text>
+      <input class="search-input" 
+             type="text" 
+             placeholder="搜索技能或需求"
+             value="{{searchKeyword}}"
+             bindinput="onSearchInput"
+             bindconfirm="doSearch" />
+    </view>
+  </view>
+
+  <!-- 标签切换 -->
+  <view class="tab-bar">
+    <view class="tab-item {{currentTab === 'all' ? 'active' : ''}}" 
+          bindtap="switchTab" 
+          data-tab="all">
+      <text>全部</text>
+    </view>
+    <view class="tab-item {{currentTab === 'skill' ? 'active' : ''}}" 
+          bindtap="switchTab" 
+          data-tab="skill">
+      <text>技能</text>
+    </view>
+    <view class="tab-item {{currentTab === 'need' ? 'active' : ''}}" 
+          bindtap="switchTab" 
+          data-tab="need">
+      <text>需求</text>
+    </view>
+  </view>
+
+  <!-- 分类滚动 -->
+  <scroll-view class="category-scroll" scroll-x enable-flex>
+    <view class="category-item {{currentCategory === index ? 'active' : ''}}" 
+          wx:for="{{categories}}" 
+          wx:key="id"
+          bindtap="switchCategory"
+          data-index="{{index}}">
+      <text>{{item.name}}</text>
+    </view>
+  </scroll-view>
+
+  <!-- 技能/需求列表 -->
+  <view class="skill-list">
+    <block wx:if="{{skillList.length > 0}}">
+      <view class="skill-card" 
+            wx:for="{{skillList}}" 
+            wx:key="_id"
+            bindtap="onSkillTap"
+            data-skill="{{item}}">
+        <!-- 卡片头部 -->
+        <view class="card-header">
+          <view class="user-info">
+            <view class="avatar-wrapper">
+              <image class="avatar" src="{{item.publisherInfo.avatarUrl}}" mode="aspectFill" wx:if="{{item.publisherInfo.avatarUrl}}"></image>
+              <view class="avatar-default" wx:else>
+                <text>👤</text>
+              </view>
+            </view>
+            <view class="user-detail">
+              <text class="nickname">{{item.publisherInfo.nickName || '匿名用户'}}</text>
+              <view class="meta-info">
+                <text class="campus">{{item.campus}}</text>
+                <text class="time">{{item.createTimeStr}}</text>
+              </view>
+            </view>
+          </view>
+          <view class="type-tag {{item.type === 'skill' ? 'skill' : 'need'}}">
+            <text>{{item.type === 'skill' ? '技能' : '需求'}}</text>
+          </view>
+        </view>
+
+        <!-- 卡片内容 -->
+        <view class="card-content">
+          <text class="title">{{item.title}}</text>
+          <text class="description ellipsis-2">{{item.description}}</text>
+        </view>
+
+        <!-- 卡片底部 -->
+        <view class="card-footer">
+          <view class="tags">
+            <text class="tag category">{{item.categoryName}}</text>
+            <text class="tag duration">{{item.duration}}小时</text>
+          </view>
+          <view class="credit-score">
+            <text class="label">信誉</text>
+            <text class="score">{{item.publisherInfo.creditScore || 100}}</text>
+          </view>
+        </view>
+      </view>
+    </block>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{skillList.length === 0 && !loading}}">
+      <text class="empty-icon">📭</text>
+      <text class="empty-text">暂无{{currentTab === 'skill' ? '技能' : currentTab === 'need' ? '需求' : '内容'}}</text>
+      <button class="empty-btn" bindtap="goPublish">去发布</button>
+    </view>
+
+    <!-- 加载状态 -->
+    <view class="loading-state" wx:if="{{loading}}">
+      <text class="loading-text">加载中...</text>
+    </view>
+
+    <!-- 没有更多 -->
+    <view class="no-more" wx:if="{{!hasMore && skillList.length > 0}}">
+      <text>— 没有更多了 —</text>
+    </view>
+  </view>
+</view>

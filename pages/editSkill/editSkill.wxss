@@ -1,0 +1,127 @@
+/* pages/editSkill/editSkill.wxss */
+
+.edit-page {
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  padding-bottom: constant(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.form-container {
+  padding: 20rpx;
+}
+
+/* 表单组 */
+.form-group {
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+}
+
+.form-label {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 16rpx;
+}
+
+/* 输入框 */
+.form-input {
+  width: 100%;
+  height: 80rpx;
+  background-color: var(--bg-color);
+  border-radius: 12rpx;
+  padding: 0 24rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+}
+
+/* 文本域 */
+.form-textarea {
+  width: 100%;
+  min-height: 200rpx;
+  background-color: var(--bg-color);
+  border-radius: 12rpx;
+  padding: 24rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+}
+
+.char-count {
+  display: block;
+  text-align: right;
+  font-size: 24rpx;
+  color: var(--text-secondary);
+  margin-top: 8rpx;
+}
+
+/* 选择器 */
+.picker-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 80rpx;
+  background-color: var(--bg-color);
+  border-radius: 12rpx;
+  padding: 0 24rpx;
+  font-size: 28rpx;
+  color: var(--text-primary);
+}
+
+.picker-box.placeholder {
+  color: var(--text-secondary);
+}
+
+.picker-arrow {
+  font-size: 20rpx;
+  color: var(--text-secondary);
+}
+
+/* 时间段选择 */
+.time-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.time-slot {
+  padding: 16rpx 24rpx;
+  background-color: var(--bg-color);
+  border-radius: 8rpx;
+  font-size: 26rpx;
+  color: var(--text-regular);
+  border: 2rpx solid transparent;
+  transition: all 0.3s ease;
+}
+
+.time-slot.selected {
+  background-color: rgba(74, 144, 217, 0.1);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+/* 提交按钮 */
+.submit-btn {
+  width: 100%;
+  height: 96rpx;
+  background: linear-gradient(135deg, #4A90D9 0%, #67B8DE 100%);
+  color: #ffffff;
+  font-size: 32rpx;
+  font-weight: 500;
+  border-radius: 48rpx;
+  border: none;
+  margin-top: 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.submit-btn::after {
+  border: none;
+}
+
+.submit-btn.disabled {
+  opacity: 0.6;
+}
