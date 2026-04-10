@@ -46,6 +46,10 @@ Page({
     if (this.data.skillList.length > 0) {
       this.loadSkillList(true);
     }
+    // 获取未读消息数
+    if (app.globalData.isLogin) {
+      app.getUnreadCount();
+    }
   },
 
   // 下拉刷新

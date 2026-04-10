@@ -4,10 +4,17 @@
     wx:for="{{list}}" 
     wx:key="index" 
     data-path="{{item.pagePath}}" 
-    data-index="{{index}}" 
+    data-index="{{index}}"
     bindtap="switchTab"
   >
-    <view class="tab-icon {{selected === index ? 'selected' : ''}}">{{item.icon}}</view>
+    <view class="tab-icon-wrap">
+      <view class="tab-icon {{selected === index ? 'selected' : ''}}">{{item.icon}}</view>
+      <!-- 消息红点 -->
+      <view class="badge" wx:if="{{item.text === '消息' && unreadCount > 0}}">
+        <text class="badge-text" wx:if="{{unreadCount > 99}}">99+</text>
+        <text class="badge-text" wx:else>{{unreadCount}}</text>
+      </view>
+    </view>
     <view class="tab-text" style="color: {{selected === index ? selectedColor : color}}">{{item.text}}</view>
   </view>
 </view>

@@ -69,8 +69,15 @@
         </view>
         <text class="menu-title">{{item.title}}</text>
       </view>
-      <view class="menu-arrow">
-        <text class="arrow">›</text>
+      <view class="menu-right">
+        <!-- 消息未读红点 -->
+        <view class="menu-badge" wx:if="{{item.id === 'myMessages' && unreadCount > 0}}">
+          <text class="badge-text" wx:if="{{unreadCount > 99}}">99+</text>
+          <text class="badge-text" wx:else>{{unreadCount}}</text>
+        </view>
+        <view class="menu-arrow">
+          <text class="arrow">›</text>
+        </view>
       </view>
     </view>
   </view>

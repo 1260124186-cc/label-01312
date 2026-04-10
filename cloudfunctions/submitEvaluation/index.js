@@ -9,13 +9,31 @@ const db = cloud.database();
 const _ = db.command;
 
 /**
+ * 创建消息通知（内部函数）
+ */
+async function createNotification(notificationData) {
+  try {
+    await cloud.callFunction({
+      name: 'manageNotification',
+      data: {
+        action: 'create',
+        data: notificationData
+      }
+    });
+  } catch (err) {
+    console.error('创建通知失败', err);
+    // 通知创建失败不影响主业务流程
+  }
+}
+
+/**
  * 评价提交与积分计算云函数
  * 功能：提交评价、计算并更新用户信誉分
  */
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext();
   const openid = wxContext.OPENID;
-  
+
   const { action, data } = event;
 
   try {
@@ -81,8 +99,8 @@ async function submitEvaluation(openid, data) {
   }
 
   // 确定被评价者
-  const evaluateeId = appointment.providerId === openid 
-    ? appointment.receiverId 
+  const evaluateeId = appointment.providerId === openid
+    ? appointment.receiverId
     : appointment.providerId;
 
   // 检查是否已评价
@@ -126,6 +144,22 @@ async function submitEvaluation(openid, data) {
 
   // 计算并更新被评价者的信誉分
   await updateCreditScore(evaluateeId, rating);
+
+  // 发送评价通知给被评价者
+  await createNotification({
+    userId: evaluateeId,
+    type: 'evaluation_new',
+    title: '收到新评价',
+    content: `${evaluatorInfo.nickName || '有人'}评价了您的技能交换，给了${rating}星好评`,
+    relatedId: appointmentId,
+    relatedType: 'evaluation',
+    extraData: {
+      rating: rating,
+      comment: comment || '',
+      evaluatorName: evaluatorInfo.nickName || '未知用户',
+      skillTitle: appointment.skillTitle
+    }
+  });
 
   return {
     code: 0,
@@ -220,8 +254,8 @@ async function getEvaluations(data) {
   result.data.forEach(evaluation => {
     totalRating += evaluation.rating;
   });
-  const averageRating = result.data.length > 0 
-    ? (totalRating / result.data.length).toFixed(1) 
+  const averageRating = result.data.length > 0
+    ? (totalRating / result.data.length).toFixed(1)
     : 0;
 
   return {

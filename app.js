@@ -31,6 +31,8 @@ App({
     userInfo: null,
     openid: null,
     isLogin: false,
+    // 未读消息数
+    unreadCount: 0,
     // 技能分类
     skillCategories: [
       { id: 1, name: '编程开发', icon: 'code' },
@@ -51,13 +53,62 @@ App({
     ]
   },
 
+  // 更新未读消息数
+  updateUnreadCount: function(count) {
+    this.globalData.unreadCount = count;
+    // 更新tabBar红点
+    this.updateTabBarBadge(count);
+  },
+
+  // 更新TabBar红点显示
+  updateTabBarBadge: function(count) {
+    // 更新自定义tabBar
+    const pages = getCurrentPages();
+    const currentPage = pages[pages.length - 1];
+    if (currentPage && currentPage.getTabBar) {
+      const tabBar = currentPage.getTabBar();
+      if (tabBar) {
+        tabBar.updateUnreadCount(count);
+      }
+    }
+  },
+
+  // 获取未读消息数量
+  getUnreadCount: function() {
+    const that = this;
+    const openid = wx.getStorageSync('openid');
+    if (!openid) return;
+
+    // 开发模式
+    if (this.globalData.devMode) {
+      // 从模拟数据中计算未读数
+      const mockMessages = this.globalData.mockData.notifications || [];
+      const unreadCount = mockMessages.filter(item => !item.isRead).length;
+      this.updateUnreadCount(unreadCount);
+      return;
+    }
+
+    // 云开发模式
+    wx.cloud.callFunction({
+      name: 'manageNotification',
+      data: {
+        action: 'getUnreadCount'
+      },
+      success: res => {
+        if (res.result.code === 0) {
+          that.updateUnreadCount(res.result.data.unreadCount);
+        }
+      }
+    });
+  },
+
   // 检查登录状态
   checkLogin: function() {
     const that = this;
     // 尝试从本地存储获取用户信息
     const userInfo = wx.getStorageSync('userInfo');
     const openid = wx.getStorageSync('openid');
-    
+
     if (userInfo && openid) {
       that.globalData.userInfo = userInfo;
       that.globalData.openid = openid;
@@ -77,7 +128,7 @@ App({
   // 调用云函数登录
   cloudLogin: function(callback) {
     const that = this;
-    
+
     // 开发模式使用模拟登录
     if (that.globalData.devMode) {
       const mockResult = {
@@ -108,7 +159,7 @@ App({
   // 初始化模拟数据
   initMockData: function() {
     const now = new Date();
-    
+
     this.globalData.mockData = {
       // 模拟用户数据
       users: [
@@ -146,7 +197,7 @@ App({
           totalExchanges: 15
         }
       ],
-      
+
       // 模拟技能数据
       skills: [
         {
@@ -319,6 +370,59 @@ App({
           comment: '李四同学教得很好，发音纠正非常专业，收获很大！',
           tags: ['耐心教学', '专业能力强', '态度友好'],
           createTime: new Date(now - 4 * 24 * 60 * 60 * 1000)
+        }
+      ],
+
+      // 模拟通知消息数据
+      notifications: [
+        {
+          _id: 'msg_001',
+          userId: 'mock_openid_001',
+          type: 'appointment_new',
+          title: '收到新预约',
+          content: '李四预约了您的技能「Python编程入门教学」',
+          relatedId: 'appt_003',
+          relatedType: 'appointment',
+          isRead: false,
+          createTime: new Date(now - 30 * 60 * 1000),
+          extraData: {
+            skillTitle: 'Python编程入门教学',
+            appointmentTime: '2026-04-15 14:00',
+            partnerName: '李四'
+          }
+        },
+        {
+          _id: 'msg_002',
+          userId: 'mock_openid_001',
+          type: 'appointment_accepted',
+          title: '预约已接受',
+          content: '您的预约「PS修图教学，从入门到精通」已被接受',
+          relatedId: 'appt_001',
+          relatedType: 'appointment',
+          isRead: true,
+          createTime: new Date(now - 2 * 60 * 60 * 1000),
+          extraData: {
+            skillTitle: 'PS修图教学，从入门到精通',
+            appointmentTime: '2026-02-05 14:00',
+            partnerName: '王五'
+          }
+        },
+        {
+          _id: 'msg_003',
+          userId: 'mock_openid_001',
+          type: 'evaluation_new',
+          title: '收到新评价',
+          content: '李四评价了您的技能交换，给了5星好评',
+          relatedId: 'appt_002',
+          relatedType: 'evaluation',
+          isRead: false,
+          createTime: new Date(now - 24 * 60 * 60 * 1000),
+          extraData: {
+            rating: 5,
+            comment: '教得很好，发音纠正非常专业！',
+            evaluatorName: '李四',
+            skillTitle: '教英语口语，纠正发音'
+          }
         }
       ]
     };

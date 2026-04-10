@@ -1,0 +1,82 @@
+<view class="container" bindtap="hideDeleteBtn">
+  <!-- 未登录提示 -->
+  <view class="login-tip" wx:if="{{!isLogin}}">
+    <text class="tip-text">登录后查看消息通知</text>
+    <button class="login-btn" bindtap="goLogin">去登录</button>
+  </view>
+
+  <!-- 消息列表 -->
+  <block wx:if="{{isLogin}}">
+    <!-- 标签栏 -->
+    <view class="tab-bar">
+      <view 
+        class="tab-item {{currentTab === item.key ? 'active' : ''}}" 
+        wx:for="{{tabs}}" 
+        wx:key="key"
+        data-tab="{{item.key}}"
+        bindtap="switchTab"
+      >
+        {{item.name}}
+        <text class="tab-badge" wx:if="{{item.key === 'unread' && unreadCount > 0}}">{{unreadCount}}</text>
+      </view>
+    </view>
+
+    <!-- 全部已读按钮 -->
+    <view class="mark-all-read" wx:if="{{showMarkAllRead}}" bindtap="markAllAsRead">
+      <text class="mark-all-text">全部已读</text>
+    </view>
+
+    <!-- 消息列表 -->
+    <view class="message-list">
+      <view 
+        class="message-item {{item.isRead ? 'read' : 'unread'}}" 
+        wx:for="{{messageList}}" 
+        wx:key="_id"
+        data-message="{{item}}"
+        bindtap="onMessageTap"
+        bindlongpress="onMessageLongPress"
+      >
+        <!-- 未读标记 -->
+        <view class="unread-dot" wx:if="{{!item.isRead}}"></view>
+        
+        <!-- 图标 -->
+        <view class="message-icon">{{item.typeIcon}}</view>
+        
+        <!-- 内容 -->
+        <view class="message-content">
+          <view class="message-header">
+            <text class="message-title">{{item.title}}</text>
+            <text class="message-type">{{item.typeText}}</text>
+          </view>
+          <text class="message-text">{{item.content}}</text>
+          <text class="message-time">{{item.timeStr}}</text>
+        </view>
+
+        <!-- 删除按钮 -->
+        <view 
+          class="delete-btn" 
+          wx:if="{{item.showDelete}}"
+          data-message="{{item}}"
+          catchtap="deleteMessage"
+        >
+          删除
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{messageList.length === 0 && !loading}}">
+      <text class="empty-icon">📭</text>
+      <text class="empty-text">暂无消息</text>
+      <text class="empty-subtext" wx:if="{{currentTab === 'unread'}}">您已读完所有消息</text>
+    </view>
+
+    <!-- 加载更多 -->
+    <view class="loading-more" wx:if="{{loading}}">
+      <text>加载中...</text>
+    </view>
+    <view class="no-more" wx:if="{{!hasMore && messageList.length > 0}}">
+      <text>没有更多了</text>
+    </view>
+  </block>
+</view>
