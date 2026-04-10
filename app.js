@@ -320,6 +320,50 @@ App({
           tags: ['耐心教学', '专业能力强', '态度友好'],
           createTime: new Date(now - 4 * 24 * 60 * 60 * 1000)
         }
+      ],
+
+      // 模拟消息数据
+      messages: [
+        {
+          _id: 'msg_001',
+          userId: 'mock_openid_001',
+          type: 'appointment',
+          title: '预约已被接受',
+          content: '你的预约「PS修图教学，从入门到精通」已被王五接受，请准时参加！',
+          relatedId: 'appt_001',
+          isRead: false,
+          createTime: new Date(now - 1 * 24 * 60 * 60 * 1000)
+        },
+        {
+          _id: 'msg_002',
+          userId: 'mock_openid_001',
+          type: 'evaluation',
+          title: '收到新评价',
+          content: '你收到了来自张三的新评价，获得了5星好评！',
+          relatedId: 'eval_001',
+          isRead: false,
+          createTime: new Date(now - 4 * 24 * 60 * 60 * 1000)
+        },
+        {
+          _id: 'msg_003',
+          userId: 'mock_openid_001',
+          type: 'system',
+          title: '欢迎加入技能交换',
+          content: '欢迎加入技能交换平台，开始你的技能之旅吧！',
+          relatedId: '',
+          isRead: true,
+          createTime: new Date(now - 10 * 24 * 60 * 60 * 1000)
+        },
+        {
+          _id: 'msg_004',
+          userId: 'mock_openid_001',
+          type: 'appointment',
+          title: '交换已完成',
+          content: '「教英语口语，纠正发音」交换已完成，记得去评价哦！',
+          relatedId: 'appt_002',
+          isRead: true,
+          createTime: new Date(now - 5 * 24 * 60 * 60 * 1000)
+        }
       ]
     };
 

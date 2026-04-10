@@ -1,0 +1,37 @@
+<view class="container">
+  <view class="header">
+    <text class="title">消息通知</text>
+    <text wx:if="{{unreadCount > 0}}" class="mark-all" bindtap="markAllAsRead">全部已读</text>
+  </view>
+
+  <view wx:if="{{!isLogin && messages.length === 0}}" class="empty-state">
+    <text class="empty-icon">🔒</text>
+    <text class="empty-text">请登录后查看消息</text>
+  </view>
+
+  <view wx:if="{{messages.length === 0 && !isLoading && isLogin}}" class="empty-state">
+    <text class="empty-icon">📭</text>
+    <text class="empty-text">暂无消息</text>
+  </view>
+
+  <view class="message-list">
+    <view
+      wx:for="{{messages}}"
+      wx:key="_id"
+      class="message-item {{item.isRead ? 'read' : 'unread'}}"
+      data-message-id="{{item._id}}"
+      data-index="{{index}}"
+      bindtap="markAsRead"
+    >
+      <view class="message-icon">{{getMessageIcon(item.type)}}</view>
+      <view class="message-content">
+        <view class="message-title">{{item.title}}</view>
+        <view class="message-desc">{{item.content}}</view>
+        <view class="message-time">{{formatTime(item.createTime)}}</view>
+      </view>
+      <view wx:if="{{!item.isRead}}" class="unread-dot"></view>
+    </view>
+  </view>
+
+  <view wx:if="{{isLoading}}" class="loading">加载中...</view>
+</view>
